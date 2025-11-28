@@ -1,13 +1,34 @@
 require('dotenv').config();
 const express = require("express");
-const routes = require("./src/routes")
+const routes = require("./src/routes");
+const { connect } =require("mongoose");
+const corsOptions = require("./src/config/cors.config");
+const {notFound, errorHandler} =require("./src/middlewares/error.middleware")
+
+const MONGO_URI = process.env.MONGO_URI;
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 
-const PORT = process.env.PORT || 3000;
+// Middlewares de base
+app.use(corsOptions);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
     res.send("Hello World 🚀🚀🚀 !");
 });
 
-app.listen(PORT, () => console.log("Serveur démarré sur le port", PORT));
+// Routes
+app.use("/api", routes);
+
+// Middlewares d'erreur (toujours en dernier)
+app.use(notFound);
+app.use(errorHandler);
+
+
+connect(MONGO_URI)
+.then(() => app.listen(PORT, () => console.log("Serveur démarré sur le port", PORT)))
+.catch((err) => console.log("Erreur lors de la connection :", err));
+
+// app.listen(PORT, () => console.log("Serveur démarré sur le port", PORT));
