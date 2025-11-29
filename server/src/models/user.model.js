@@ -65,18 +65,3 @@ const userSchema = new Schema({
 });
 
 module.exports = model("User", userSchema);
-
-
-/**
- * fullName
- * email
- * password
- * profilePhoto
- * bio
- * followers
- * following
- * bookmarks
- * posts
- * comments
- * likes
- */

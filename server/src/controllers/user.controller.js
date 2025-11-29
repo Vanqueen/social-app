@@ -1,13 +1,13 @@
 const HttpError = require("../models/error.model");
 const UserModel = require("../models/user.model");
-const { hashValue } = require("../utils/hash.util");
+const { createAccessToken, createRefreshToken } = require("../services/token.service");
+const { hashValue, compareValue } = require("../utils/hash.util");
 
 /**
  * Enregistrement d'un utilisateur
  * POST : api/users/register
  */
 const registerUser = async (req, res, next) => {
-    console.log("Je suis dans la méthode flêcher de api/users/register !", req.body);
 
     try {
         const { fullName, email, password, confirmPassword } = req.body;
@@ -58,9 +58,50 @@ const registerUser = async (req, res, next) => {
  */
 const loginUser = async (req, res, next) => {
     try {
-        
+        const { email, password } = req.body;
+
+        //Vérifier que les valeurs existent 
+        if (!email || !password) {
+            return next(new HttpError("Tous les champs sont requis !", 422));
+        }
+
+        // Normalisation de l'addresse mail 
+        const lowerCasedEmail = email.toLowerCase();
+
+        // Recherche de l'utilisateur en bdd
+        const user = await UserModel.findOne({email: lowerCasedEmail});
+
+        if(!user) {
+            return next(new HttpError("Identifiants invalides !", 422));
+        }
+
+        const isMatch = await compareValue(password, user.password);
+        if(!isMatch) return next(new HttpError("Identifiants invalides !", 401));
+
+        const payload = { userId: user._id };
+
+        const accessToken = await createAccessToken(payload);
+        const refreshToken = await createRefreshToken(user._id.toString(), req.get("User-Agent"));
+
+        res.cookie("accessToken", JSON.stringify({
+            httpOnly: true,
+            sameSite: "strict",
+            maxAge: timeToMs(procces.env.JWT_ACCESS_TOKEN_EXPIRESIN)
+        }));
+
+        res.cookie("refreshToken", JSON.stringify({
+            jti: refreshToken.jti,
+            token: refreshToken.token
+        }), {
+            httpOnly: true,
+            sameSite: "strict",
+            maxAge: timeToMs(procces.env.JWT_REFRESH_TOKEN_EXPIRESIN)
+        })
+
+        res.status(200).json({ succes: true, message: "Utilisateur authentifier avec succès !", accessToken });
     } catch (error) {
-        
+        console.error("Erreur lors de l'authentification de l'utilisateur !", error);
+        return next(new HttpError("Erreur lors de l'authentification de l'utilisateur !", 500))
     }
 }
 
