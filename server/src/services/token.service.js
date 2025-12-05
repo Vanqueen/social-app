@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
 const crypto = require("crypto");
 const RefreshTokenModel = require("../models/refreshToken.model");
-const { hashValue } = require("../utils/hash.util");
+const { hashValue, compareValue } = require("../utils/hash.util");
+const UserModel = require("../models/user.model");
 
 
 // création d'un access token pour la connexion et l'authentification
@@ -23,6 +23,17 @@ const timeToMs = (time) => {
     return parseInt(time) //millisecondes
 
 }
+/**
+ * Convertir le temps sous la forme 15m ,30d, 1h en millisecondes
+ * @param {String} time indique la durée de validité du refreshToken
+ */
+// function timeToMs(time) {
+//     if (time.endsWith('d')) return parseInt(time) * 24 * 60 * 60 * 1000 // jours en millisecondes
+//     if (time.endsWith('h')) return parseInt(time) * 60 * 60 * 1000 // heures en millisecondes
+//     if (time.endsWith('m')) return parseInt(time) * 60 * 1000 // minutes en millisecondes
+//     if(time.endsWith('s')) return parseInt(time) * 1000 //secondes en millisecondes
+//     return parseInt(time) * 1000
+// }
 
 const createRefreshToken = async (userId, userAgent) => {
     const token = crypto.randomBytes(64).toString('hex'); // 128 caractères hexadécimaux
@@ -42,7 +53,54 @@ const createRefreshToken = async (userId, userAgent) => {
     return { token, jti, expiresAt };
 }
 
+async function revokeRefreshToken(jti) {
+  try {
+    const result = await RefreshTokenModel.deleteOne({jti});
+
+    return result.deletedCount > 0; // true si un document a été supprimé
+  } catch (error) {
+    console.error("❌ Erreur revokeRefreshToken:", error);
+    return false;
+  }
+};
+
+async function verifyRefreshToken(jti, token) {
+  try {
+    // ✅ 1️⃣ Vérifie le refresh token en BDD
+    const storedToken = await RefreshTokenModel.findOne({ jti});
+     
+    if (!storedToken) {
+      return null; // aucun refresh trouvé en BDD 
+    }
+
+    const veryfToken = await compareValue(token, storedToken.tokenHash);
+    
+    
+    // ✅ 2️⃣ Vérifie si l'utilisateur existe encore
+    if (!veryfToken) {
+      return null; // le token n'est pas valide
+    }
+    
+    // ✅ 3️⃣ Vérifie si l'utilisateur existe encore
+    const user = await UserModel.findById(storedToken.userId);
+   
+    if (!user) {
+      return null; // utilisateur supprimé ou introuvable
+    }
+    
+ 
+    return user._id;
+
+  } catch (error) {
+    console.error("❌ Erreur dans getUserIdRefreshToken:", error);
+    throw new Error("Erreur interne lors de la vérification du token");
+  }
+}
+
 module.exports = {
     createAccessToken,
-    createRefreshToken
+    createRefreshToken,
+    timeToMs,
+    verifyRefreshToken,
+    revokeRefreshToken
 }

@@ -4,6 +4,7 @@ const routes = require("./src/routes");
 const { connect } =require("mongoose");
 const corsOptions = require("./src/config/cors.config");
 const {notFound, errorHandler} =require("./src/middlewares/error.middleware")
+const cookieParser = require('cookie-parser');
 
 const MONGO_URI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 3000;
@@ -12,6 +13,7 @@ const app = express();
 
 // Middlewares de base
 app.use(corsOptions);
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

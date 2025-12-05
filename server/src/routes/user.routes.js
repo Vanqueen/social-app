@@ -1,5 +1,6 @@
 const router = require("express").Router();
 
+const { authMiddleware } = require("../middlewares/auth.middleware");
 const {
     registerUser,
     loginUser,
@@ -12,13 +13,14 @@ const {
     changeUserAvatar
 } = require("../controllers/user.controller");
 
+
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
-router.post("/renewAccessToken", renewAccessToken);
-router.get("/:id", getUser);
+router.post("/renewAcessToken", renewAccessToken);
 router.get("/all", getUsers);
-router.patch("/:id/edit", editUser);
+router.get("/:id", getUser);
+router.patch("/:id/edit", authMiddleware, editUser);
 router.patch("/:id/follow-unfollow", followUnfollowUser);
 router.post("/avatar", changeUserAvatar);
 
