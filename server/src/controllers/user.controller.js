@@ -1,3 +1,5 @@
+const { utils, cloudinary_js_config } = require("../config/cloudinary.config");
+const cloudinary = require("../config/cloudinary.config");
 const HttpError = require("../models/error.model");
 const UserModel = require("../models/user.model");
 const {
@@ -10,6 +12,7 @@ const {
 const { hashValue, compareValue } = require("../utils/hash.util");
 const uuid = require("uuid").v4;
 require("dotenv").config();
+const path = require("path");
 
 /**
  * Enregistrement d'un utilisateur
@@ -361,12 +364,12 @@ const followUnfollowUser = async (req, res, next) => {
     const userToFollowId = req.params.id;
 
     // ✅ 1️⃣ Vérifie l'authentification
-    if (!req.user) {
+    if (!userToFollowId) {
       return next(new HttpError("Authentification requise", 401));
     }
 
     // ✅ 2️⃣ Vérifie que l'utilisateur cible est différent de l'utilisateur courant
-    if (req.user === userToFollowId) {
+    if (req.userId === userToFollowId) {
       return next(
         new HttpError(
           "Vous ne pouvez pas vous suivre ou vous désabonner vous-même",
@@ -382,28 +385,27 @@ const followUnfollowUser = async (req, res, next) => {
     }
 
     // ✅ 4️⃣ Récupère l'utilisateur courant
-    const currentUser = await UserModel.findById(req.user);
+    const currentUser = await UserModel.findById(req.userId);
     if (!currentUser) {
       return next(new HttpError("Utilisateur courant introuvable", 404));
     }
+    const isFollowers = userToFollow.followers.find(id => id.toString()  == req.userId.toString());
 
     // ✅ 5️⃣ Vérifie si l'utilisateur courant suit déjà la cible
-    const isFollowing = currentUser.following.includes(userToFollowId);
-
     let updatedTargetUser;
     let updatedCurrentUser;
     let message;
 
-    if (!isFollowing) {
+    if (!isFollowers) {
       // ➕ Suivre un utilisateur
       updatedTargetUser = await UserModel.findByIdAndUpdate(
         userToFollowId,
-        { $push: { followers: req.user } },
+        { $push: { followers: req.userId } },
         { new: true }
       );
 
       updatedCurrentUser = await UserModel.findByIdAndUpdate(
-        req.user,
+        req.userId,
         { $push: { following: userToFollowId } },
         { new: true }
       );
@@ -413,12 +415,12 @@ const followUnfollowUser = async (req, res, next) => {
       // ➖ Se désabonner (unfollow)
       updatedTargetUser = await UserModel.findByIdAndUpdate(
         userToFollowId,
-        { $pull: { followers: req.user } },
+        { $pull: { followers: req.userId } },
         { new: true }
       );
 
       updatedCurrentUser = await UserModel.findByIdAndUpdate(
-        req.user,
+        req.userId,
         { $pull: { following: userToFollowId } },
         { new: true }
       );
@@ -430,14 +432,8 @@ const followUnfollowUser = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message,
-      currentUser: {
-        id: updatedCurrentUser._id,
-        following: updatedCurrentUser.following,
-      },
-      targetUser: {
-        id: updatedTargetUser._id,
-        followers: updatedTargetUser.followers,
-      },
+      currentUser: updatedCurrentUser,
+      targetUser: updatedTargetUser,
     });
   } catch (error) {
     console.error("❌ Erreur dans followUnfollowUser :", error);
@@ -451,6 +447,7 @@ const followUnfollowUser = async (req, res, next) => {
  * Protected
  */
 const changeUserAvatar = async (req, res, next) => {
+  console.log("modification de l'image de profile !")
   try {
     // ✅ Vérifie si un fichier "avatar" est présent dans la requête
     if (!req.files.avatar) {
@@ -482,15 +479,16 @@ const changeUserAvatar = async (req, res, next) => {
     const uploadPath = path.join(__dirname, "..", "uploads", newFilename);
 
     // ✅ avatar.mv utilise un callback, donc on le "promisifie" pour pouvoir l'utiliser avec await
-    const mv = util.promisify(avatar.mv);
+    // const mv = cloudinary.utils.promisify(avatar.mv);
 
     // ✅ Déplace le fichier uploadé vers le dossier "uploads"
-    await mv(uploadPath);
+    await avatar.mv(uploadPath);
 
     // ✅ Upload du fichier sur Cloudinary (service de stockage d’images)
     //    On indique que c’est une ressource de type "image"
     const result = await cloudinary.uploader.upload(uploadPath, {
       resource_type: "image",
+      folder: "avatars",
     });
 
     // ✅ Vérifie que Cloudinary a bien retourné une URL d’image valide
@@ -501,7 +499,7 @@ const changeUserAvatar = async (req, res, next) => {
     // ✅ Met à jour le champ "profilePhoto" de l'utilisateur connecté
     //    avec l'URL sécurisée retournée par Cloudinary
     const updatedUser = await UserModel.findByIdAndUpdate(
-      req.user.id, // ID de l'utilisateur connecté
+      req.userId, // ID de l'utilisateur connecté
       { profilePhoto: result.secure_url }, // Nouvelle photo de profil
       { new: true } // Renvoie le document mis à jour
     );

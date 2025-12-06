@@ -21,7 +21,7 @@ router.post("/renewAcessToken", renewAccessToken);
 router.get("/all", getUsers);
 router.get("/:id", getUser);
 router.patch("/:id/edit", authMiddleware, editUser);
-router.patch("/:id/follow-unfollow", followUnfollowUser);
-router.post("/avatar", changeUserAvatar);
+router.patch("/:id/follow-unfollow", authMiddleware, followUnfollowUser);
+router.post("/avatar", authMiddleware, changeUserAvatar);
 
 module.exports = router;
