@@ -105,7 +105,6 @@ const loginUser = async (req, res, next) => {
 
     const isMatch = await compareValue(password, user.password);
     if (!isMatch) return next(new HttpError("Identifiants invalides !", 401));
-
     const payload = { userId: user._id };
 
     const accessToken = await createAccessToken(payload);
@@ -115,7 +114,8 @@ const loginUser = async (req, res, next) => {
     );
 
     // ✅ 6️⃣ Prépare les données à renvoyer sans le mot de passe
-    const { password: _, ...userInfo } = user._doc;
+    // const { password: _, ...userInfo } = user._doc;
+    const { password: _, confirmPassword: __, __v: ___, ...userInfo } = user._doc;
 
     res.cookie(
       "refreshToken",
@@ -513,6 +513,50 @@ const changeUserAvatar = async (req, res, next) => {
     return next(new HttpError(error.message || JSON.stringify(error), 500));
   }
 };
+
+const changeUserAvatars = async (req, res, next) => {
+  try {
+    if (!req.files && !req.files.avatar) {
+      return next(new HttpError("Please choose an image", 422));
+    }
+    if (!req.userId) {
+      return next(new HttpError("Authentication required", 401));
+    }
+    
+    const avatar = req.files.avatar;
+    if (avatar.size > 1024 * 1024) {
+      return next(new HttpError("Avatar size too big", 422));
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(avatar.mimetype)) {
+      return next(new HttpError("Invalid avatar type", 422));
+    }
+
+    const base64 = avatar.data.toString("base64");
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      req.userId,
+      { profilePhoto: base64 },
+      { new: true, select: '-password' }
+    );
+
+    if (!updatedUser) {
+      return next(new HttpError("User not found", 404));
+    }
+
+    const imageUrl = `data:${avatar.mimetype};base64,${base64}`;
+
+    return res.status(200).json({
+      success: true,
+      message: "Avatar updated successfully ✅",
+      user: updatedUser,
+      imageUrl: imageUrl,
+    });
+  } catch (error) {
+    console.error("❌ Error in changeUserAvatar:", error);
+    return next(new HttpError(error.message || "Server error", 500));
+  }
+}
 
 module.exports = {
   registerUser,
