@@ -38,7 +38,12 @@ const Login = () => {
   const loginUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/users/login`, userData);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/users/login`, userData, {
+        withCredentials: true
+      });
+      // Dans votre fonction de connexion côté client
+      console.log("Cookies après connexion:", document.cookie);
+
       if (response.status === 200) {
         dispatch(userActions.changeCurrentUser(response?.data?.user));
         localStorage.setItem("currentUser", JSON.stringify(response?.data?.user))

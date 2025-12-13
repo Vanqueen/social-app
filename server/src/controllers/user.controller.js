@@ -122,16 +122,18 @@ const loginUser = async (req, res, next) => {
       JSON.stringify({ jti: refreshToken.jti, token: refreshToken.token }),
       {
         httpOnly: true,
-        sameSite: "strict",
+        sameSite: "lax",
         domain: "localhost",
+        secure: false,
         maxAge: timeToMs(process.env.JWT_REFRESH_TOKEN_EXPIRESIN),
       }
     );
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      sameSite: "strict",
+      sameSite: "lax",
       domain: "localhost",
+      secure: false,
       maxAge: timeToMs(process.env.JWT_ACCESS_TOKEN_EXPIRESIN),
     });
 
@@ -140,8 +142,10 @@ const loginUser = async (req, res, next) => {
       .json({
         succes: true,
         message: "Utilisateur authentifier avec succès !",
-        accessToken,
-        user: userInfo,
+        user: {
+          userInfo,
+          accessToken
+        },
       });
   } catch (error) {
     console.error(

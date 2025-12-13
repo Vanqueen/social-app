@@ -3,7 +3,8 @@ const jwt = require("jsonwebtoken");
 
 const authMiddleware = (req, res, next) => {
     try {
-        const token = req.cookie?.accessToken || req.cookies?.accessToken;
+        const token = req.cookies?.accessToken || req.cookie?.accessToken;
+        console.log("token dans les cookie", token);
         if (!token) {
             return next(new HttpError("Authentification refusée ! Token absent", 401));
         }
@@ -23,3 +24,4 @@ const authMiddleware = (req, res, next) => {
 module.exports = {
     authMiddleware,
 }
+

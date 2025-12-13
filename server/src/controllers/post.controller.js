@@ -9,7 +9,12 @@ const uploadFile = require("../utils/uploadFile.util");
 
 //PROTECTED
 const createPost = async (req, res, next) => {
+    console.log("req.body", req.body);
     try {
+        if (!req.userId) {
+            return next(new HttpError("Unauthorized", 401));
+        };
+
         const { body } = req.body;
         console.log("les données du post :", req.body);
  
@@ -28,7 +33,7 @@ const createPost = async (req, res, next) => {
  
         // Enregistrer le post dans la DB
         const newPost = await PostModel.create({
-            creator: req.user,
+            creator: req.userId,
             body,
             image: result,
         });
@@ -91,7 +96,7 @@ const updatePost = async (req, res, next) => {
 
         // 🔐 Vérification que l'utilisateur connecté est bien le créateur du post
         const postCreatorId = post.creator?.toString();
-        const requesterId = req.user?.toString();
+        const requesterId = req.userId?.toString();
 
         if (postCreatorId != requesterId) {
             return next(new HttpError("Vous ne pouvez pas modifier ce post car vous n'en êtes pas le créateur", 403));
@@ -144,7 +149,7 @@ const deletePost = async (req, res, next) => {
 
         // 🔐 Vérification que l'utilisateur connecté est bien le créateur du post
         const postCreatorId = post.creator?.toString();
-        const requesterId = req.user?.toString();
+        const requesterId = req.userId?.toString();
 
         if (postCreatorId != requesterId) {
             return next(new HttpError("Vous ne pouvez pas modifier ce post car vous n'en êtes pas le créateur", 403));
@@ -165,7 +170,7 @@ const deletePost = async (req, res, next) => {
 const getFollowingPosts = async (req, res, next) => {
     try {
 
-        const user = await UserModel.findById(req.user);
+        const user = await UserModel.findById(req.userId);
 
         const posts = await PostModel.find({ creator: { $in: user?.following } });
         res.status(200).json(posts);
@@ -183,10 +188,10 @@ const likeDislikePost = async (req, res, next) => {
         const post = await PostModel.findById(id);
 
         let updatedPost;
-        if (post?.likes.includes(req.user)) {
-            updatedPost = await PostModel.findByIdAndUpdate(id, { $pull: { likes: req.user } }, { new: true });
+        if (post?.likes.includes(req.userId)) {
+            updatedPost = await PostModel.findByIdAndUpdate(id, { $pull: { likes: req.userId } }, { new: true });
         } else {
-            updatedPost = await PostModel.findByIdAndUpdate(id, { $push: { likes: req.user } }, { new: true });
+            updatedPost = await PostModel.findByIdAndUpdate(id, { $push: { likes: req.userId } }, { new: true });
         }
         res.json(updatedPost);
     } catch (error) {
@@ -224,16 +229,16 @@ const createBookmark = async (req, res, next) => {
             return next(new HttpError("Post introuvable", 404));
         }
 
-        const user = await UserModel.findById(req.user);
+        const user = await UserModel.findById(req.userId);
         const postIdBookmarked = user?.bookmarks?.includes(id);
         let userBookmarks;
 
 
         if (postIdBookmarked) {
-            userBookmarks = await UserModel.findByIdAndUpdate(req.user, { $pull: { bookmarks: id } }, { new: true });
+            userBookmarks = await UserModel.findByIdAndUpdate(req.userId, { $pull: { bookmarks: id } }, { new: true });
 
         } else {
-            userBookmarks = await UserModel.findByIdAndUpdate(req.user, { $push: { bookmarks: id } }, { new: true });
+            userBookmarks = await UserModel.findByIdAndUpdate(req.userId, { $push: { bookmarks: id } }, { new: true });
         }
         res.status(200).json(userBookmarks);
     } catch (error) {
@@ -249,7 +254,7 @@ const getUserBookmarks = async (req, res, next) => {
     try {
         console.log("getUserBookmarks");
         
-        const userBookmarks = await UserModel.findById(req.user).populate({path: "bookmarks", options: {sort: {createdAt: -1}}});
+        const userBookmarks = await UserModel.findById(req.userId).populate({path: "bookmarks", options: {sort: {createdAt: -1}}});
 
         res.status(200).json(userBookmarks);
     } catch (error) {

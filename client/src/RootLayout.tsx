@@ -1,11 +1,22 @@
-// import React from 'react'
+// RootLayout.tsx
 
 import { Outlet } from "react-router-dom"
 import Sidebar from "./components/Sidebar"
 import Widgets from "./components/Widgets"
 import Navbar from "./components/Navbar"
+import ThemeModal from "./components/ThemeModal"
+import { useSelector } from "react-redux"
+import { useEffect } from "react"
 
 const RootLayout = () => {
+  const { themeModalIsOpen } = useSelector((state: any) => state?.ui);
+  const {primaryColor, backgroundColor} = useSelector((state: any) => state?.ui?.theme);
+
+  useEffect(() => {
+    const body = document.body;
+    body.className = `${primaryColor} ${backgroundColor}`;
+  }, [primaryColor, backgroundColor])
+
   return (
     <>
       <Navbar />
@@ -17,6 +28,7 @@ const RootLayout = () => {
           </div>
           {/* <Outlet /> */}
           <Widgets />
+          {themeModalIsOpen && <ThemeModal />}
         </div>
       </main>
     </>
