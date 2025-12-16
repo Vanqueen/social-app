@@ -20,8 +20,6 @@ if (result.error && process.env.NODE_ENV !== 'production') {
     console.log('Fichier .env non trouvé, utilisation des variables d\'environnement du système');
 }
 
-console.log("MongoDB URI : ", process.env.MONGO_URI);
-
 const connectDB = async () => {
   try {
     const uri = process.env.MONGO_URI;

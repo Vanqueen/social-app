@@ -24,16 +24,16 @@ const createMessage = async (req, res, next) => {
 
         //check if ther's already a conversation between current user and receiver
         let conversation = await ConversationModel.findOne({
-            participants: { $all: [req.user, receiverId] }
+            participants: { $all: [req.userId, receiverId] }
         });
 
         if (!conversation) {
 
             conversation = await ConversationModel.create({
-                participants: [req.user, receiverId],
+                participants: [req.userId, receiverId],
                 lastMessage: {
                     text: messageBody,
-                    senderId: req.user
+                    senderId: req.userId
                 }
             });
         }
@@ -41,7 +41,7 @@ const createMessage = async (req, res, next) => {
 
         const newMessage = await MessageModel.create({
             conversationId: conversation._id,
-            senderId: req.user,
+            senderId: req.userId,
             text: messageBody
         });
 
@@ -52,7 +52,7 @@ const createMessage = async (req, res, next) => {
                 $set: {
                     lastMessage: {
                         text: messageBody,
-                        senderId: req.user,
+                        senderId: req.userId,
                         createdAt: new Date()
                     }
                 }
@@ -85,7 +85,7 @@ const getMessages = async (req, res, next) => {
 
         // Vérifie s'il existe une conversation entre l'utilisateur courant et le destinataire
         const conversation = await ConversationModel.findOne({
-            participants: { $all: [req.user, receiverId] }
+            participants: { $all: [req.userId, receiverId] }
         });
 
         // Si aucune conversation n’existe, on en informe l’utilisateur
@@ -116,7 +116,7 @@ const getMessages = async (req, res, next) => {
 const getConversations = async (req, res, next) => {
     try {
         // Récupère toutes les conversations où l'utilisateur courant est participant
-        let conversations = await ConversationModel.find({ participants: req.user })
+        let conversations = await ConversationModel.find({ participants: req.userId })
             .populate({
                 path: "participants",
                 select: "fullName profilePhoto" // On ne retourne que le nom complet et la photo
@@ -126,7 +126,7 @@ const getConversations = async (req, res, next) => {
         // Pour chaque conversation, on retire l'utilisateur connecté
         conversations = conversations.map((conversation) => {
             const otherParticipants = conversation.participants.filter(
-                (participant) => participant._id.toString() !== req.user.toString()
+                (participant) => participant._id.toString() !== req.userId.toString()
             );
 
             return {

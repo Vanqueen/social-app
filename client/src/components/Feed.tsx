@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import { useSelector } from 'react-redux';
 import type { AppState } from '../types/app-state.types';
 import axios from 'axios';
@@ -7,41 +7,43 @@ import ProfileImage from './ProfileImage';
 import TimeAgo from 'react-timeago';
 import { FaRegCommentDots } from 'react-icons/fa';
 import { IoMdShare } from 'react-icons/io';
-import LikeDislikePost from '../pages/LikeDislikePost';
+import LikeDislikePost from './LikeDislikePost';
 import TrimText from '../helpers/TrimText';
 import BookmarksPost from './BookmarksPost';
+import type { PostType } from '../types/post.types';
+import type { UserInfo } from '../types/user.type';
 
-const Feed = ({post}: any) => {
-    console.log("post :", post);
-    const [creator, setCreator] = React.useState({});
+const Feed = ({post}: {post: PostType} ) => {
+    const [creator, setCreator] = useState<UserInfo | null>(null);
     // const token = useSelector((state: AppState) => state?.user?.currentUser?.accessToken);
-    const [showFeedHeaderMenu, setShowFeedHeaderMenu] = React.useState(false);
-    const userId = useSelector((state: AppState) => state?.user?.currentUser?.user?._id);
+    const [showFeedHeaderMenu, setShowFeedHeaderMenu] = useState(false);
+    const userId = useSelector((state: AppState) => state?.user?.currentUser?.userInfo?._id);
 
     const location = useLocation();
 
 
-    const getPostCreator = async () => {
+    const getPostCreator = useCallback(async () => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/${post?.creator}`, {withCredentials: true});
             setCreator(response?.data?.user);
         } catch (error) {
             console.log(error);
         }
-    }
+    }, [post]);
 
     const deletePost = async () => {
 
     }
 
     const showEditPostModal = async () => {
+        console.log("edit post :", setShowFeedHeaderMenu)
 
     }
 
 
     React.useEffect(() => {
         getPostCreator();
-    }, []);
+    }, [getPostCreator]);
 
 
   return (
@@ -49,14 +51,14 @@ const Feed = ({post}: any) => {
         <article className='feed'>
             <header className='feed__header'>
                 <Link to={`/users/${post?.creator}`} className="feed__header-profile">
-                    <ProfileImage image={creator?.profilePhoto} />
+                    <ProfileImage image={creator?.profilePhoto || ''} />
                     <div className='feed__header-details'>
                         <h4>{creator?.fullName}</h4>
-                        <small><TimeAgo date={post?.createdAt} /></small>
+                        <small>{post?.createdAt ? <TimeAgo date={post.createdAt} /> : 'Date inconnue'}</small>
                     </div>
                 </Link>
                 {showFeedHeaderMenu 
-                && userId == post?.crator 
+                && userId == post?.creator._id
                 && location.pathname.includes("users") 
                 && <menu className='feed__headermenu'>
                         <button onClick={showEditPostModal}>Edit</button>

@@ -2,14 +2,20 @@ import React, { useState } from 'react'
 import { useSelector } from 'react-redux';
 import ProfileImage from './ProfileImage';
 import { SlPicture } from 'react-icons/sl';
+import type { AppState } from '../types/app-state.types';
 
-const CreatePost = ({onCreatePost, error}: any) => {
+interface CreatePostProps {
+  onCreatePost: (data: FormData) => void;
+  error?: string;
+}
+
+const CreatePost = ({onCreatePost, error}: CreatePostProps) => {
     const [body, setBody] = useState<string>("");
-    const profilePhoto = useSelector((s: any) => s.user?.currentUser?.userInfo?.profilePhoto);
+    const profilePhoto = useSelector((s: AppState) => s.user?.currentUser?.userInfo?.profilePhoto);
     const [image, setImage] = useState<File | null>(null);
 
     // Fonction de création d'un post
-    const createPost = (e) => {
+    const createPost = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const postData = new FormData();
         postData.set('body', body);

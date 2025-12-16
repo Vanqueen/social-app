@@ -5,6 +5,22 @@ export interface CreateUser {
   confirmPassword: string;
 }
 
+export interface UserInfo {
+  _id: string;
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  profilePhoto: string;
+  bio: string;
+  followers: string[];
+  following: string[];
+  bookmarks: string[];
+  posts: string[];
+  comments: string[];
+  likes: string[];
+}
+
 export interface UserState {
     currentUser: CurrentUser;
     socket: null;
@@ -13,6 +29,8 @@ export interface UserState {
 
 export interface CurrentUser {
     id: string;
+    userInfo: UserInfo;
     profilePhoto: string;
     accessToken: string;
+    bookmarks: string[];
 }

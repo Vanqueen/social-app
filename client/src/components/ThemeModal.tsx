@@ -3,10 +3,11 @@
 import type React from "react";
 import { useDispatch, useSelector } from "react-redux"
 import { uiActions } from "../store/ui-slice";
+import type { AppState } from "../types/app-state.types";
 
 const ThemeModal = () => {
     const dispatch = useDispatch();
-    const theme = useSelector((state: any) => state?.ui?.theme);
+    const theme = useSelector((state: AppState) => state?.ui?.theme);
 
     const closeThemeModal = (e: React.MouseEvent<HTMLElement>) => {
         const target = e.target as HTMLElement;

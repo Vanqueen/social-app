@@ -4,10 +4,9 @@ import type { PostType } from '../types/post.types'
  
 interface FeedsProps {
   posts: PostType[];
-  onSetPosts: any;
+  onSetPosts: (posts: PostType[]) => void;
 }
 const Feeds = ({posts, onSetPosts}: FeedsProps) => {
-  console.log("Feeds posts :", posts);
   console.log(onSetPosts);
   return (
     <div className='feeds'>

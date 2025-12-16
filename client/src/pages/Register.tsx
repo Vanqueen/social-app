@@ -34,14 +34,11 @@ const Register = () => {
 
   const registerUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Données de l'utilisateur :", e);
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/users/register`, userData);
       if (response.status === 201) {
         navigate("/login");
-        console.log("Utilisateur inscrit avec succès");
       }
-      console.log("Réponse de l'API :", response);
     } catch (error) {
       let msg = "";
       if (axios.isAxiosError(error)) {

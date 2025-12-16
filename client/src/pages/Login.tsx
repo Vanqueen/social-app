@@ -41,8 +41,6 @@ const Login = () => {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/users/login`, userData, {
         withCredentials: true
       });
-      // Dans votre fonction de connexion côté client
-      console.log("Cookies après connexion:", document.cookie);
 
       if (response.status === 200) {
         dispatch(userActions.changeCurrentUser(response?.data?.user));

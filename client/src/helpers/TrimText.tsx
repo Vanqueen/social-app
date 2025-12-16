@@ -1,6 +1,11 @@
 // import React from 'react'
 
-const TrimText = ({item, maxLength}: any) => {
+interface TrimTextProps {
+  item: string;
+  maxLength: number;
+}
+
+const TrimText = ({item, maxLength}: TrimTextProps) => {
   return (
     <>
         {item?.length > maxLength ? item?.substring(0, maxLength) + "..." : item}

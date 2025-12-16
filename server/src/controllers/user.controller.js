@@ -263,6 +263,16 @@ const getUser = async (req, res, next) => {
     // ✅ 1️⃣ Récupération de l'ID passé en paramètre d'URL
     const { id } = req.params;
 
+    // ✅ Validation de l'ID
+    if (!id || id === 'undefined') {
+      return next(new HttpError("ID utilisateur requis", 400));
+    }
+
+    // ✅ Validation du format ObjectId
+    if (!/^[0-9a-fA-F]{24}$/.test(id)) {
+      return next(new HttpError("Format d'ID invalide", 400));
+    }
+
     // ✅ 2️⃣ Recherche de l'utilisateur en base de données
     // On exclut certains champs sensibles avec .select()
     const user = await UserModel.findById(id).select(

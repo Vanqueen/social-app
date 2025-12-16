@@ -21,7 +21,7 @@ const createComment = async (req, res, next) => {
         }
 
         // 👤 Récupérer les informations du créateur du commentaire
-        const commentCreator = await UserModel.findById(req.user);
+        const commentCreator = await UserModel.findById(req.userId);
         if (!commentCreator) {
             return next(new HttpError("Utilisateur non trouvé.", 404));
         }
@@ -29,7 +29,7 @@ const createComment = async (req, res, next) => {
         // 📝 Création du commentaire
         const newComment = await CommentModel.create({
             creator: {
-                creatorId: req.user,
+                creatorId: req.userId,
                 creatorName: commentCreator.fullName,
                 creatorPhoto: commentCreator.profilePhoto,
             },
@@ -44,6 +44,8 @@ const createComment = async (req, res, next) => {
             { new: true }
         );
 
+        console.log("Commentaire créé avec succès:", newComment);
+        console.log("Post mis à jour avec succès:", postId);
         // ✅ Réponse de succès
         return res.status(200).json({
             message: "Commentaire créé avec succès.",
@@ -109,7 +111,7 @@ const deleteComment = async (req, res, next) => {
         }
 
         // 🔐 Vérifier si l'utilisateur connecté est bien l'auteur du commentaire
-        if (commentCreator._id.toString() !== req.user) {
+        if (commentCreator._id.toString() !== req.userId) {
             return next(new HttpError("Vous n'êtes pas autorisé à supprimer ce commentaire.", 403));
         }
 

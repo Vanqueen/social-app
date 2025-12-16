@@ -5,12 +5,13 @@ import { CiSearch } from "react-icons/ci";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import ProfileImage from "./ProfileImage";
+import type { AppState } from "../types/app-state.types";
 // AppState
 const Navbar = () => {
   const navigate = useNavigate();
-  const userId = useSelector((s: any) => s.user?.currentUser?.userInfo?._id);
-  const token = useSelector((s: any) => s.user?.currentUser?.accessToken);
-  const profilePhoto = useSelector((s: any) => s.user?.currentUser?.userInfo?.profilePhoto);
+  const userId = useSelector((s: AppState) => s.user?.currentUser?.userInfo?._id);
+  const token = useSelector((s: AppState) => s.user?.currentUser?.accessToken);
+  const profilePhoto = useSelector((s: AppState) => s.user?.currentUser?.userInfo?.profilePhoto);
 
   useEffect(() => {
     if (token === undefined) return;

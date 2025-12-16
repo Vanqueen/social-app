@@ -9,14 +9,12 @@ const uploadFile = require("../utils/uploadFile.util");
 
 //PROTECTED
 const createPost = async (req, res, next) => {
-    console.log("req.body", req.body);
     try {
         if (!req.userId) {
             return next(new HttpError("Unauthorized", 401));
         };
 
         const { body } = req.body;
-        console.log("les données du post :", req.body);
  
         if (!body) {
             return next(new HttpError("Fill in text field and choose image", 422));
@@ -251,9 +249,7 @@ const createBookmark = async (req, res, next) => {
 // POST : api/posts/:id/bookmark
 // PROTECTED
 const getUserBookmarks = async (req, res, next) => {
-    try {
-        console.log("getUserBookmarks");
-        
+    try {        
         const userBookmarks = await UserModel.findById(req.userId).populate({path: "bookmarks", options: {sort: {createdAt: -1}}});
 
         res.status(200).json(userBookmarks);

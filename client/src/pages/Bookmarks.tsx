@@ -1,10 +1,43 @@
-// import React from 'react'
+import axios from 'axios';
+import { useEffect, useState } from 'react'
+import Feed from '../components/Feed';
+import FeedSkeleton from '../components/FeedSkeleton';
+import Head from '../components/Head';
+import type { PostType } from '../types/post.types';
 
 const Bookmarks = () => {
+  const [bookmarks, setBookmarks] = useState<PostType[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+
+  useEffect(() => {
+    const getBookemarks = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/users/bookmarks`,
+          { withCredentials: true }
+        );
+        setBookmarks(response?.data?.bookmarks);
+      } catch (error) {
+        console.log(error);
+      }
+      setIsLoading(false);
+    }
+    getBookemarks();
+  })
+
+
   return (
-    <div>
-      <p><span>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quisquam ipsum perferendis tempora asperiores mollitia deleniti cupiditate itaque magni laborum. Praesentium repellat dicta molestiae totam neque, molestias deserunt laudantium quas dignissimos.</span><span>Repudiandae laboriosam sit non similique temporibus officiis, hic maiores, consequuntur maxime quis dolor ipsa dolore officia, repellat rerum ea voluptas sequi? Quidem unde veritatis, nesciunt tempore sit recusandae illum mollitia?</span></p>
-    </div>
+    <section>
+      <Head title="Mes livres favoris" />
+      {isLoading 
+      ? <FeedSkeleton /> 
+      : bookmarks?.length < 1  
+      ? <p className="center">Aucun favoris pour le moment !</p>
+      : bookmarks?.map(bookmark => <Feed key={bookmark?._id} post={bookmark} />)
+    }
+    </section>
   )
 }
 

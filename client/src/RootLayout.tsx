@@ -7,10 +7,11 @@ import Navbar from "./components/Navbar"
 import ThemeModal from "./components/ThemeModal"
 import { useSelector } from "react-redux"
 import { useEffect } from "react"
+import type { AppState } from "./types/app-state.types"
 
 const RootLayout = () => {
-  const { themeModalIsOpen } = useSelector((state: any) => state?.ui);
-  const {primaryColor, backgroundColor} = useSelector((state: any) => state?.ui?.theme);
+  const { themeModalIsOpen } = useSelector((state: AppState) => state?.ui);
+  const {primaryColor, backgroundColor} = useSelector((state: AppState) => state?.ui?.theme);
 
   useEffect(() => {
     const body = document.body;
