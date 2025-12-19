@@ -11,7 +11,7 @@ interface CreatePostProps {
 
 const CreatePost = ({onCreatePost, error}: CreatePostProps) => {
     const [body, setBody] = useState<string>("");
-    const profilePhoto = useSelector((s: AppState) => s.user?.currentUser?.userInfo?.profilePhoto);
+    const profilePhoto = useSelector((s: AppState) => s.user?.currentUser?.profilePhoto);
     const [image, setImage] = useState<File | null>(null);
 
     // Fonction de création d'un post

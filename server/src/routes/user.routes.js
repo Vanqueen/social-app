@@ -12,6 +12,7 @@ const {
     followUnfollowUser,
     changeUserAvatar
 } = require("../controllers/user.controller");
+const { getUserPosts } = require("../controllers/post.controller");
 
 
 router.post("/register", registerUser);
@@ -23,5 +24,6 @@ router.get("/:id", getUser);
 router.patch("/:id/edit", authMiddleware, editUser);
 router.patch("/:id/follow-unfollow", authMiddleware, followUnfollowUser);
 router.post("/avatar", authMiddleware, changeUserAvatar);
+router.get("/:id/posts", authMiddleware, getUserPosts );
 
 module.exports = router;

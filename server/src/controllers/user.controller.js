@@ -142,10 +142,8 @@ const loginUser = async (req, res, next) => {
       .json({
         succes: true,
         message: "Utilisateur authentifier avec succès !",
-        user: {
-          userInfo,
-          accessToken
-        },
+        user,
+        accessToken
       });
   } catch (error) {
     console.error(

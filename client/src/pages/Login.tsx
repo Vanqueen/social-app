@@ -22,6 +22,7 @@ const Login = () => {
     password: "",
     confirmPassword: "",
   });
+  
 
   const [error, setError] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -44,7 +45,7 @@ const Login = () => {
 
       if (response.status === 200) {
         dispatch(userActions.changeCurrentUser(response?.data?.user));
-        localStorage.setItem("currentUser", JSON.stringify(response?.data?.user))
+        dispatch(userActions.setToken(response?.data?.accessToken));
         navigate("/");
       }
     } catch (error) {

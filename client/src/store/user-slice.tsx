@@ -13,6 +13,10 @@ const getStoredUser = () => {
   }
 };
 
+const getStoredToken = () => {
+  return localStorage.getItem("accessToken");
+};
+
 /**
  * Creation d'un slice Redux pour la gestion des données utilisateur de notre application
  */
@@ -24,17 +28,23 @@ const userSlice = createSlice({
     currentUser: getStoredUser(), //Utilisateur actuellement connecté
     socket: null, //Socket pour la communication en temps réel
     onlineUsers: [], //Liste des utilisateurs en ligne
+    accessToken: getStoredToken(),
   },
   //
   reducers: {
     changeCurrentUser: (state, action) => {
       state.currentUser = action.payload;
+      localStorage.setItem("currentUser", JSON.stringify(action.payload));
     },
     setSocket: (state, action) => {
       state.socket = action.payload;
     },
     setOnlineUsers: (state, action) => {
       state.onlineUsers = action.payload;
+    },
+    setToken: (state, action) => {
+      state.accessToken = action.payload;
+      localStorage.setItem("accessToken", action.payload);
     },
   },
 });

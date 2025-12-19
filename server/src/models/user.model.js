@@ -42,22 +42,22 @@ const userSchema = new Schema({
     }],
     bookmarks: [{
         type: Schema.Types.ObjectId,
-        ref: "Posts",
+        ref: "Post",
         default: []
     }],
     posts: [{
         type: Schema.Types.ObjectId,
-        ref: "Posts",
+        ref: "Post",
         default: []
     }],
     comments: [{
         type: Schema.Types.ObjectId,
-        ref: "Posts",
+        ref: "Post",
         default: []
     }],
     likes: [{
         type: Schema.Types.ObjectId,
-        ref: "Posts",
+        ref: "Post",
         default: []
     }],
 }, {

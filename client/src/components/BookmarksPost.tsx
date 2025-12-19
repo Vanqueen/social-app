@@ -11,7 +11,7 @@ interface BookmarksPostProps {
 }
 const BookmarksPost = ({ post }: BookmarksPostProps) => {
  
-  const userId = useSelector((state: AppState) => state?.user.currentUser?.userInfo?._id);
+  const userId = useSelector((state: AppState) => state?.user.currentUser?._id);
   const [user, setUser] = React.useState<CurrentUser | null>(null);
   const [postBookmarked, setPostBookmarked] = React.useState(false);
 

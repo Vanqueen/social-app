@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../types/app-state.types';
 import axios from 'axios';
 import { Link, useLocation } from 'react-router-dom';
@@ -12,14 +12,17 @@ import TrimText from '../helpers/TrimText';
 import BookmarksPost from './BookmarksPost';
 import type { PostType } from '../types/post.types';
 import type { UserInfo } from '../types/user.type';
+import { HiDotsHorizontal } from 'react-icons/hi';
+import { uiActions } from '../store/ui-slice';
 
-const Feed = ({post}: {post: PostType} ) => {
+const Feed = ({post, onDeletePost}: {post: PostType, onDeletePost: (postId: string) => void} ) => {
     const [creator, setCreator] = useState<UserInfo | null>(null);
     // const token = useSelector((state: AppState) => state?.user?.currentUser?.accessToken);
     const [showFeedHeaderMenu, setShowFeedHeaderMenu] = useState(false);
-    const userId = useSelector((state: AppState) => state?.user?.currentUser?.userInfo?._id);
+    const userId = useSelector((state: AppState) => state?.user?.currentUser?._id);
 
     const location = useLocation();
+    const dispatch = useDispatch();
 
 
     const getPostCreator = useCallback(async () => {
@@ -31,13 +34,17 @@ const Feed = ({post}: {post: PostType} ) => {
         }
     }, [post]);
 
-    const deletePost = async () => {
-
+    const closeFeedHeaderMenu = () => {
+        setShowFeedHeaderMenu(false);
     }
 
+    const deletePost = async () => {
+        onDeletePost(post?._id);
+        closeFeedHeaderMenu();
+    }
+    
     const showEditPostModal = async () => {
-        console.log("edit post :", setShowFeedHeaderMenu)
-
+        dispatch(uiActions.openEditPostModal(post?._id));
     }
 
 
@@ -58,19 +65,26 @@ const Feed = ({post}: {post: PostType} ) => {
                     </div>
                 </Link>
                 {showFeedHeaderMenu 
-                && userId == post?.creator._id
+                && userId == post?.creator
                 && location.pathname.includes("users") 
-                && <menu className='feed__headermenu'>
+                && <menu className='feed__header-menu'>
                         <button onClick={showEditPostModal}>Edit</button>
                         <button onClick={deletePost}>Delete</button>
                    </menu>
+                }
+                {
+                    userId == post?.creator
+                    && location.pathname.includes("users")
+                    && <button onClick={() => setShowFeedHeaderMenu(!showFeedHeaderMenu)}>
+                        <HiDotsHorizontal />
+                    </button>
                 }
             </header>
             <Link 
             to={`posts/${post?._id}`}
             className='feed__body'>
                 <p><TrimText item={post?.body} maxLength={160} /></p>
-                {/* <p>{post?.body}</p> */}
+                <p>{post?.body}</p>
                 <div className='feed__images'>
                     <img src={post?.image} alt="" />
                 </div>

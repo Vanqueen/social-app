@@ -22,15 +22,26 @@ export interface UserInfo {
 }
 
 export interface UserState {
-    currentUser: CurrentUser;
-    socket: null;
-    onlineUsers: string[];
+  currentUser: CurrentUser;
+  socket: null;
+  onlineUsers: string[];
+  accessToken: string | null;
 }
 
 export interface CurrentUser {
-    id: string;
-    userInfo: UserInfo;
-    profilePhoto: string;
-    accessToken: string;
-    bookmarks: string[];
+  _id: string;
+  userInfo: UserInfo;
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  profilePhoto: string;
+  accessToken: string;
+  bookmarks: string[];
+  bio: string;
+  followers: string[];
+  following: string[];
+  posts: string[];
+  comments: string[];
+  likes: string[];
 }

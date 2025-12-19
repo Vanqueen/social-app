@@ -4,7 +4,7 @@ import type { PostType } from '../types/post.types'
  
 interface FeedsProps {
   posts: PostType[];
-  onSetPosts: (posts: PostType[]) => void;
+  onSetPosts: (posts: string) => void;
 }
 const Feeds = ({posts, onSetPosts}: FeedsProps) => {
   console.log(onSetPosts);
@@ -14,7 +14,7 @@ const Feeds = ({posts, onSetPosts}: FeedsProps) => {
         posts?.length < 1
         ? <p className='center'>Aucun post pour le moment...</p>
         : posts?.map(
-            post => <Feed key={post?._id} post={post} />
+            post => <Feed key={post?._id} post={post} onDeletePost={onSetPosts} />
         )
         }
     </div>

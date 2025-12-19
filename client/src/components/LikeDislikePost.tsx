@@ -15,7 +15,7 @@ const LikeDislikePost = ({post}: LikeDislikePostProps) => {
 
   const [postData, setPostData] = useState(post);
   const [postLiked, setPostLiked] = useState<boolean>(false);
-  const userId = useSelector((state: AppState) => state?.user?.currentUser?.userInfo?._id);
+  const userId = useSelector((state: AppState) => state?.user?.currentUser?._id);
 
   const handleLikeDislikePost = async () => {
     try {

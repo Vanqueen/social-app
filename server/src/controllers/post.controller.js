@@ -37,9 +37,10 @@ const createPost = async (req, res, next) => {
         });
  
         // Ajouter le post à l'utilisateur
-        await UserModel.findByIdAndUpdate(newPost.creator, {
+        const updatedUser = await UserModel.findByIdAndUpdate(newPost.creator, {
             $push: { posts: newPost._id },
         });
+        console.log(`Le post ${newPost} a été créé avec succès ! Voici le post: \n ${updatedUser}`);
  
         res.status(201).json(newPost);
     } catch (error) {
@@ -55,9 +56,18 @@ const getPost = async (req, res, next) => {
     try {
         //id du post à récupérer
         const { id } = req.params;
+               
+        // Vérifier si l'ID est valide
+        if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+            return next(new HttpError("Invalid post ID", 400));
+        }
  
         // const post = await PostModel.findById(id); //A commenter après la création de commnetaires et autres
         const post = await PostModel.findById(id).populate("creator").populate({path: "comments", options: {sort: {createdAt: -1}}});
+        if (!post) {
+            return next(new HttpError("Post not found", 402));
+        }
+
         res.status(200).json(post);
     } catch (error) {
         return next(new HttpError(error.message || "Something went wrong", 500));
@@ -205,7 +215,9 @@ const getUserPosts = async (req, res, next) => {
     try {
         const userId = req.params.id;
         const posts = await UserModel.findById(userId).populate({ path: "posts", options: { sort: { createdAt: -1 } } });
-
+        if (!posts) {
+            return next(new HttpError("Aucun post trouvé pour cet utilisateur", 402));
+        }
         res.status(200).json(posts);
     } catch (error) {
         return next(new HttpError(error));

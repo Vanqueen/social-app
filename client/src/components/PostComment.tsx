@@ -11,7 +11,7 @@ interface PostCommentProps {
 
 
 const PostComment = ({comment, onDeleteComment}: PostCommentProps) => {
-    const userId = useSelector((state: AppState) => state?.user?.currentUser?.userInfo?._id);
+    const userId = useSelector((state: AppState) => state?.user?.currentUser?._id);
 
     const deleteComment = () => {
         onDeleteComment(comment?._id);

@@ -9,9 +9,12 @@ import type { AppState } from "../types/app-state.types";
 // AppState
 const Navbar = () => {
   const navigate = useNavigate();
-  const userId = useSelector((s: AppState) => s.user?.currentUser?.userInfo?._id);
-  const token = useSelector((s: AppState) => s.user?.currentUser?.accessToken);
-  const profilePhoto = useSelector((s: AppState) => s.user?.currentUser?.userInfo?.profilePhoto);
+  // const currentUser = useSelector((s: AppState) => s.user?.currentUser);
+  const token = useSelector((s: AppState) => s.user?.accessToken);
+  
+  const userId = useSelector((s: AppState) => s.user?.currentUser?._id);
+  const fullName = useSelector((s: AppState) => s.user?.currentUser?.fullName);
+  const profilePhoto = useSelector((s: AppState) => s.user?.currentUser?.profilePhoto);
 
   useEffect(() => {
     if (token === undefined) return;
@@ -19,8 +22,6 @@ const Navbar = () => {
       navigate("/login");
     }
   }, [token, navigate]);
-
-  useEffect(() => {})
 
   return (
     <nav className="navbar">
@@ -31,6 +32,7 @@ const Navbar = () => {
           <button type="submit"><CiSearch /></button>
         </form>
         <div className="navbar__right">
+          <span>{fullName}</span>
           <Link to={`/users/${userId}`} className="navbar__profile">
             <ProfileImage image={profilePhoto} />
           </Link>
