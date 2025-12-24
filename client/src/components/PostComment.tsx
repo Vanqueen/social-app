@@ -16,7 +16,7 @@ const PostComment = ({comment, onDeleteComment}: PostCommentProps) => {
     const deleteComment = () => {
         onDeleteComment(comment?._id);
     }
-    console.log(comment)
+
   return (
     <li className='singlePost__comment'>
         <div className='singlePost__comment-wrapper'>

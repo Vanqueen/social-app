@@ -44,8 +44,6 @@ const createComment = async (req, res, next) => {
             { new: true }
         );
 
-        console.log("Commentaire créé avec succès:", newComment);
-        console.log("Post mis à jour avec succès:", postId);
         // ✅ Réponse de succès
         return res.status(200).json({
             message: "Commentaire créé avec succès.",
@@ -79,7 +77,7 @@ const getPostComments = async (req, res, next) => {
         // 📌 Retourner uniquement les commentaires, pas tout le post
         return res.status(200).json({
             message: "Commentaires récupérés avec succès.",
-            comments: post
+            comments: post.comments
         });
 
     } catch (error) {

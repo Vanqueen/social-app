@@ -27,6 +27,9 @@ const Bookmarks = () => {
     getBookemarks();
   })
 
+  const deleteBookmark = (postId: string) => {
+    setBookmarks(bookmarks.filter(bookmark => bookmark._id !== postId));
+  };
 
   return (
     <section>
@@ -35,7 +38,7 @@ const Bookmarks = () => {
       ? <FeedSkeleton /> 
       : bookmarks?.length < 1  
       ? <p className="center">Aucun favoris pour le moment !</p>
-      : bookmarks?.map(bookmark => <Feed key={bookmark?._id} post={bookmark} />)
+      : bookmarks?.map(bookmark => <Feed key={bookmark?._id} post={bookmark} onDeletePost={deleteBookmark} />)
     }
     </section>
   )

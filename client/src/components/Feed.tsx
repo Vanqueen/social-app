@@ -65,7 +65,7 @@ const Feed = ({post, onDeletePost}: {post: PostType, onDeletePost: (postId: stri
                     </div>
                 </Link>
                 {showFeedHeaderMenu 
-                && userId == post?.creator
+                && userId == post?.creator?._id
                 && location.pathname.includes("users") 
                 && <menu className='feed__header-menu'>
                         <button onClick={showEditPostModal}>Edit</button>
@@ -73,7 +73,7 @@ const Feed = ({post, onDeletePost}: {post: PostType, onDeletePost: (postId: stri
                    </menu>
                 }
                 {
-                    userId == post?.creator
+                    userId == post?.creator?._id
                     && location.pathname.includes("users")
                     && <button onClick={() => setShowFeedHeaderMenu(!showFeedHeaderMenu)}>
                         <HiDotsHorizontal />

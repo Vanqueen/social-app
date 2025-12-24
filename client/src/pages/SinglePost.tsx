@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom' //useNavigate, 
 import ProfileImage from '../components/ProfileImage';
 import axios from 'axios';
 import TimeAgo from 'react-timeago';
@@ -17,7 +17,7 @@ const SinglePost = () => {
   const [post, setPost] = useState<PostType | null>(null);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [comment, setComment] = useState<string>("");
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const getPost = async () => {
@@ -26,10 +26,8 @@ const SinglePost = () => {
           `${import.meta.env.VITE_API_URL}/posts/${id}`,
           { withCredentials: true }
         );
-        console.log("les posts :")
 
         setPost(response?.data);
-
       } catch (error) {
         console.log(error);
       }
@@ -39,11 +37,12 @@ const SinglePost = () => {
 
   const deleteComment = async (commentId: string) => {
     try {
-      const reponse = await axios.delete(
-        `${import.meta.env.VITE_API_URL}/comments/${commentId}`
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/comments/${commentId}/delete`,
+        { withCredentials: true }
       );
-      console.log(reponse);
-      setComments(comments?.filter(c => c?._id != commentId))
+      setComments(comments.filter(c => c._id !== commentId));
+      // navigate('/');
     } catch (error) {
       console.log(error);
     }
@@ -57,10 +56,10 @@ const SinglePost = () => {
         { comment },
         { withCredentials: true }
       );
-      const newComment = response?.data;
-      console.log("nouveau commentaire :", newComment);
+      const newComment = response?.data?.comment;
       setComments([newComment, ...comments]);
-      navigate('/');
+      setComment("");
+      // navigate('/');
     } catch (error) {
       console.log(error);
     }
@@ -73,8 +72,7 @@ const SinglePost = () => {
           `${import.meta.env.VITE_API_URL}/comments/${id}/post-comment`,
           { withCredentials: true }
         );
-        console.log("les commentaires :", response.data);
-        // setComments(response?.data);
+        setComments(response?.data?.comments);
       } catch (error) {
         console.log(error);
       }
@@ -119,7 +117,7 @@ const SinglePost = () => {
           ><IoMdSend /></button>
         </form>
         {
-          post?.comments?.map(comment => <PostComment
+          comments?.map(comment => <PostComment
             key={comment?._id}
             comment={comment}
             onDeleteComment={deleteComment}

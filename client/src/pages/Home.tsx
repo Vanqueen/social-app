@@ -27,6 +27,11 @@ const Home = () => {
     }
   }
 
+  const deletePost = (postId: string) => {
+    setPosts(posts.filter(post => post._id !== postId));
+  };
+
+
   useEffect(() => {
     getPosts();
   }, [setPosts])
@@ -50,7 +55,7 @@ const Home = () => {
   return (
     <section className="mainArea">
       <CreatePost onCreatePost={createPost} error={error} /> 
-      <Feeds posts={posts} onSetPosts={setPosts} />
+      <Feeds posts={posts} onDeletePost={deletePost} />
     </section>
   )
 }

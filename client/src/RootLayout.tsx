@@ -2,7 +2,7 @@
 
 import { Outlet } from "react-router-dom"
 import Sidebar from "./components/Sidebar"
-import Widgets from "./components/Widgets"
+// import Widgets from "./components/Widgets"
 import Navbar from "./components/Navbar"
 import ThemeModal from "./components/ThemeModal"
 import { useSelector } from "react-redux"
@@ -28,7 +28,7 @@ const RootLayout = () => {
             <Outlet />
           </div>
           {/* <Outlet /> */}
-          <Widgets />
+          {/* <Widgets /> */}
           {themeModalIsOpen && <ThemeModal />}
         </div>
       </main>
